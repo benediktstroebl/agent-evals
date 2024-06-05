@@ -3,6 +3,7 @@ from .rs_generate import RsGenerator
 from .go_generate import GoGenerator
 from .generator_types import Generator
 from .model import CodeLlama, ModelBase, GPT4, GPT35, StarChat, GPTDavinci
+import logging
 
 
 def generator_factory(lang: str) -> Generator:
@@ -16,11 +17,11 @@ def generator_factory(lang: str) -> Generator:
         raise ValueError(f"Invalid language for generator: {lang}")
 
 
-def model_factory(model_name: str) -> ModelBase:
-    if model_name == "gpt-4":
-        return GPT4()
-    elif model_name == "gpt-3.5-turbo-0613":
-        return GPT35()
+def model_factory(model_name: str, logger: logging.Logger, client_type="azure") -> ModelBase:
+    if "gpt-4" in model_name:
+        return GPT4(model_name=model_name, logger=logger, client_type=client_type)
+    elif "gpt-3.5" in model_name:
+        return GPT35(model_name=model_name, logger=logger, client_type=client_type)
     elif model_name == "starchat":
         return StarChat()
     elif model_name.startswith("codellama"):

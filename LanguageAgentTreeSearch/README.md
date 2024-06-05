@@ -1,4 +1,4 @@
-# Official Repo of Language Agent Tree Search (LATS) - ICML 2024
+# Official Repo of Language Agent Tree Search (LATS)
 
 <p>
     <a href="https://www.python.org/">
@@ -11,17 +11,11 @@
 
 ![teaser](pics/teaser.png)
 
-Official implementation for ICML 2024 paper [Language Agent Tree Search Unifies Reasoning Acting and Planing in Language Models](https://arxiv.org/abs/2310.04406) with code, prompts, model outputs. 
+Official implementation for paper [Language Agent Tree Search Unifies Reasoning Acting and Planing in Language Models](https://arxiv.org/abs/2310.04406) with code, prompts, model outputs. 
 
 More can be found at our [project website](https://andyz245.github.io/LanguageAgentTreeSearch/) or [paper](https://arxiv.org/abs/2310.04406)
 
 Check out our demo, CodeLATS at our [demo](https://huggingface.co/spaces/AIatUIUC/CodeLATS/tree/main)
-
-For a more general implementation for your AI applications, please look at the LangChain implementation in LangGraph.
-[LATS-LangChain](https://github.com/langchain-ai/langgraph/tree/main/examples/lats) 
-
-or the LlamaIndex implementation
-[LATS-LlamaIndex](https://docs.llamaindex.ai/en/latest/api_reference/agent/lats/)
 
 
 ### Reasoning + Acting (HotPotQA)

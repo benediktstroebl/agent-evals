@@ -1,0 +1,5 @@
+run_lats_gpt4.sh: line 10: 384331 Killed                  python main.py --run_name "gpt4_mcts_2_full" --root_dir "root" --dataset_path ./benchmarks/humaneval-py.jsonl --strategy "mcts" --language "py" --model "gpt-4-1106-preview" --pass_at_k "1" --max_iters "8" --verbose
+
+real	139m6.566s
+user	17m38.140s
+sys	0m54.188s

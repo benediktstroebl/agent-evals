@@ -9,6 +9,8 @@ from test_acc import run_test_acc
 from utils import read_jsonl, read_jsonl_gz
 from mcts import run_mcts
 from dfs import run_dfs
+from logging_utils import JsonFormatter
+import logging
 
 
 def get_args():
@@ -29,13 +31,12 @@ def get_args():
                         help="The maximum number of self-improvement iterations", default=10)
     parser.add_argument("--expansion_factor", type=int,
                         help="The expansion factor for the reflexion UCS and A* strategy", default=3)
-    parser.add_argument("--number_of_tests", type=int,
-                        help="The maximum number of internal tests for each question", default=6)
     parser.add_argument("--is_leetcode", action='store_true',
                         help="To run the leetcode benchmark")  # Temporary
-
     parser.add_argument("--verbose", action='store_true',
                         help="To print live logs")
+    parser.add_argument("--max_num_int_tests", type=int,
+                        help="Max number of internal tests samples from generated tests.")
     # TODO: implement this
     # parser.add_argument("--is_resume", action='store_true', help="To resume run")
     # parser.add_argument("--resume_dir", type=str, help="If resume, the logging directory", default="")
@@ -79,10 +80,23 @@ def main(args):
 
     # check if log path already exists
     log_dir = os.path.join(args.root_dir, args.run_name)
+
     log_path = os.path.join(
         log_dir, f"{dataset_name}_{args.strategy}_{args.max_iters}_{args.model}_pass_at_k_{args.pass_at_k}_{args.language}.jsonl")
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
+
+    # Set up logger
+    logger = logging.getLogger(args.run_name)
+    logger.setLevel(logging.DEBUG)
+    # Create a file handler to output logs to a file
+    file_handler = logging.FileHandler(os.path.join(log_dir, f'{dataset_name}_{args.strategy}_{args.model}.log'))
+    file_handler.setLevel(logging.DEBUG)
+    # Set the JSON formatter for the handler
+    file_handler.setFormatter(JsonFormatter())
+    # Add the handler to the logger
+    logger.addHandler(file_handler)
+    logger.info("Starting the run", extra={"run_parameters": dict(args._get_kwargs()), "type": "run_started"})
 
     # check if the strategy is valid
     run_strategy = strategy_factory(args.strategy)
@@ -119,8 +133,9 @@ pass@k: {args.pass_at_k}
         log_path=log_path,
         verbose=args.verbose,
         expansion_factor=args.expansion_factor,
-        number_of_tests=args.number_of_tests,
-        is_leetcode=args.is_leetcode
+        is_leetcode=args.is_leetcode,
+        logger=logger,
+        max_num_int_tests=args.max_num_int_tests
     )
 
     print(f"Done! Check out the logs in `{log_path}`")

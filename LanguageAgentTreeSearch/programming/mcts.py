@@ -5,6 +5,10 @@ from typing import List, Dict, Any
 import math
 from typing import Tuple
 import sys
+import logging
+import jsonlines
+import time
+import os 
 
 sys.set_int_max_str_digits(100000)  # Increase the limit to 10000 digits
 
@@ -93,26 +97,42 @@ def run_mcts(
     verbose: bool,
     is_leetcode: bool = False,
     n: int = 5,
-    number_of_tests: int = 2
+    logger: logging.Logger = None,
+    max_num_int_tests: int = 4,
 ) -> None:
     exe = executor_factory(language, is_leet=is_leetcode)
     gen = generator_factory(language)
-    model = model_factory(model_name)
-    test_model = model_factory(model_name)
+    model = model_factory(model_name, logger=logger, client_type="openai")
+    test_model = model_factory(model_name, logger=logger, client_type="openai")
     print_v = make_printv(verbose)
+
+    print("Expansion factor: ", n)
 
     num_items = len(dataset)
     num_success = 0  # Counter for successful solutions
     cur_func_impl = None
 
     for idx, item in enumerate(dataset):
-        
+        if os.path.exists(log_path):
+            # read in json file from log_path and store item names as list
+            with jsonlines.open(log_path) as reader:
+                item_names = [line["name"] for line in reader]
+
+            # if item name is already in log_path, skip
+            if item["name"] in item_names:
+                continue
+            # if item['name'] == "HumanEval_39_prime_fib":
+            #     continue
+       
+
+        logger.info(f"Starting {idx+1}th task", extra={"task_id": item["name"], "type": "task_started"})
+        start_time = time.time()
         cur_func_impl = None
 
         if is_leetcode:
             tests_i = item['visible_tests']
         else:
-            tests_i = gen.internal_tests(item["prompt"], test_model, number_of_tests)
+            tests_i = gen.internal_tests(item["prompt"], test_model, max_num_int_tests)
 
         while cur_func_impl is None:
             cur_func_impl = gen.func_impl(item["prompt"], model, "simple")
@@ -136,10 +156,20 @@ def run_mcts(
             is_passing = exe.evaluate(
                 item["entry_point"], cur_func_impl, item["test"], timeout=10)
             is_solved = is_passing
-            num_success += 1
+            if is_solved:
+                num_success += 1
+                item["passed_with_erroneous_code"] = False
+            else:
+                item["passed_with_erroneous_code"] = True
+            item["is_solved"] = is_solved
+            item["solution"] = cur_func_impl
             item["acc"] = round(num_success/(idx+1), 2)
             write_jsonl(log_path, [item], append=True)
             print(num_success)
+            end_time = time.time()
+            logger.info(f"Time taken for {idx+1}th task: {end_time - start_time}", extra={"task_time": end_time - start_time, 
+                                                                                            "task_id": item["name"],
+                                                                                            "type": "task_finished"})
             print_v(f'completed {idx+1}/{num_items}: acc = {round(num_success/(idx+1), 2)}')
             continue
         
@@ -150,7 +180,6 @@ def run_mcts(
         
         for cur_iter in range(max_iters):
             # Selection
-            tests_i = gen.internal_tests(item["prompt"], test_model, number_of_tests)
 
             node = root
             trajectory = {
@@ -232,9 +261,7 @@ def run_mcts(
                 while temp.parent:
                     temp = temp.parent
                     temp.update(reward)
-
-            if is_solved:
-                break
+        
         # Choose the best solution after all iterations
         if is_solved:
             best_solution = item["solution"]
@@ -251,11 +278,20 @@ def run_mcts(
         reflections.append("MCTS reflections")
         implementations.append(best_solution)
 
+        end_time = time.time()
+        logger.info(f"Time taken for {idx+1}th task: {end_time - start_time}", extra={"task_time": end_time - start_time, 
+                                                                                        "task_id": item["name"],
+                                                                                        "type": "task_finished"})
+
+
         item["is_solved"] = is_passing
         item["reflections"] = reflections
         item["implementations"] = implementations
+        item["passed_with_erroneous_code"] = False
         item["test_feedback"] = test_feedback
         item["acc"] = round(num_success/(idx+1), 2)
         write_jsonl(log_path, [item], append=True)
-        
+
         print_v(f'completed {idx+1}/{num_items}: acc = {round(num_success/(idx+1), 2)}')
+
+    logger.info("Finished run", extra={"accuracy": num_success/num_items, "type": "run_finished"})

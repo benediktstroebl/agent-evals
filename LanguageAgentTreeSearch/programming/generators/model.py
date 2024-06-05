@@ -7,7 +7,10 @@ from tenacity import (
     wait_random_exponential,  # type: ignore
 )
 import openai
-
+from openai import AzureOpenAI, OpenAI
+import logging
+import time
+import os
 MessageRole = Literal["system", "user", "assistant"]
 
 
@@ -58,8 +61,12 @@ def gpt_chat(
     max_tokens: int = 1024,
     temperature: float = 0.0,
     num_comps=1,
+    logger=logging.Logger,
+    client=Union[OpenAI, AzureOpenAI],
 ) -> Union[List[str], str]:
-    response = openai.ChatCompletion.create(
+
+    start_time = time.time()
+    response = client.chat.completions.create(
         model=model,
         messages=[dataclasses.asdict(message) for message in messages],
         max_tokens=max_tokens,
@@ -69,6 +76,17 @@ def gpt_chat(
         presence_penalty=0.0,
         n=num_comps,
     )
+    end_time = time.time()  
+    logger.info("OpenAI API call", extra={"input_messages": [dataclasses.asdict(message) for message in messages],
+                                                            "output_messages": response.choices[0].message.content if num_comps == 1 else [choice.message.content for choice in response.choices],
+                                                           "prompt_tokens": response.usage.prompt_tokens,
+                                                           "completion_tokens": response.usage.completion_tokens, 
+                                                           "total_tokens": response.usage.total_tokens,
+                                                            "inference_time": end_time - start_time,
+                                                            "temperature": temperature,
+                                                            "max_tokens": max_tokens,
+                                                           "model_name": model,
+                                                           "type": "api_call"})
     if num_comps == 1:
         return response.choices[0].message.content  # type: ignore
     print("temp", temperature)
@@ -91,22 +109,59 @@ class ModelBase():
 
 
 class GPTChat(ModelBase):
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, logger=logging.Logger, client_type="azure"):
         self.name = model_name
         self.is_chat = True
+        self.logger = logger
+
+        if client_type == "openai":
+            self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        else:
+            if "gpt-4-turbo-0125" in model_name:
+                self.client = AzureOpenAI(
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                api_version="2023-12-01-preview",
+                azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+            )
+                self.name = "gpt-4-0125" # 0125
+            elif "gpt-3.5-turbo-0125" in model_name:
+                self.client = AzureOpenAI(
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                api_version="2023-12-01-preview",
+                azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+            )
+                self.name = "gpt-35-turbo"
+            elif "gpt-4-0613" in model_name:
+                self.client = AzureOpenAI(
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                api_version="2023-12-01-preview",
+                azure_endpoint="https://agent-eval-platform.openai.azure.com/"
+            )
+                self.name = "azure_gpt-4-0613"
+            elif "gpt-3.5-turbo-0613" in model_name:
+                self.client = AzureOpenAI(
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                api_version="2023-12-01-preview",
+                azure_endpoint="https://agent-eval-platform.openai.azure.com/"
+            )
+                self.name = "azure_gpt-35-turbo-0613"
+                
+            else:
+                raise ValueError("Invalid model name for Azure backend!")
+        
 
     def generate_chat(self, messages: List[Message], max_tokens: int = 1024, temperature: float = 0.2, num_comps: int = 1) -> Union[List[str], str]:
-        return gpt_chat(self.name, messages, max_tokens, temperature, num_comps)
+        return gpt_chat(self.name, messages, max_tokens, temperature, num_comps, self.logger, self.client)
 
 
 class GPT4(GPTChat):
-    def __init__(self):
-        super().__init__("gpt-4")
+    def __init__(self, model_name: str, logger=logging.Logger, client_type="azure"):
+        super().__init__(model_name=model_name, logger=logger, client_type=client_type)
 
 
 class GPT35(GPTChat):
-    def __init__(self):
-        super().__init__("gpt-3.5-turbo")
+    def __init__(self, model_name: str, logger=logging.Logger, client_type="azure"):
+        super().__init__(model_name=model_name, logger=logger, client_type=client_type)
 
 
 class GPTDavinci(ModelBase):

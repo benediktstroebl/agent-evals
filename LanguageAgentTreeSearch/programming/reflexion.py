@@ -13,8 +13,7 @@ def run_reflexion(
     pass_at_k: int,
     log_path: str,
     verbose: bool,
-    is_leetcode: bool = False,
-    number_of_tests: int = 2
+    is_leetcode: bool = False
 ) -> None:
     exe = executor_factory(language, is_leet=is_leetcode)
     gen = generator_factory(language)
@@ -35,7 +34,7 @@ def run_reflexion(
             if is_leetcode:
                 tests_i = item['visible_tests']
             else:
-                tests_i = gen.internal_tests(item["prompt"], model, number_of_tests)
+                tests_i = gen.internal_tests(item["prompt"], model, 1)
 
             # first attempt
             while cur_func_impl is None:

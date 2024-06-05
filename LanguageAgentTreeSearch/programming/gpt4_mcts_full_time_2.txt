@@ -1,0 +1,145 @@
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/util/connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/socket.py", line 955, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno -2] Name or service not known
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 491, in _make_request
+    raise new_e
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 467, in _make_request
+    self._validate_conn(conn)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 1099, in _validate_conn
+    conn.connect()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connection.py", line 616, in connect
+    self.sock = sock = self._new_conn()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connection.py", line 205, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x14fec2982a10>: Failed to resolve 'api.openai.com' ([Errno -2] Name or service not known)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 877, in urlopen
+    return self.urlopen(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 877, in urlopen
+    return self.urlopen(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 847, in urlopen
+    retries = retries.increment(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/util/retry.py", line 515, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x14fec2982a10>: Failed to resolve 'api.openai.com' ([Errno -2] Name or service not known)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 516, in request_raw
+    result = _thread_context.session.request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x14fec2982a10>: Failed to resolve 'api.openai.com' ([Errno -2] Name or service not known)"))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 409, in __call__
+    result = fn(*args, **kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 62, in gpt_chat
+    response = openai.ChatCompletion.create(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 153, in create
+    response, _, api_key = requestor.request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 216, in request
+    result = self.request_raw(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 528, in request_raw
+    raise error.APIConnectionError(
+openai.error.APIConnectionError: Error communicating with OpenAI: HTTPSConnectionPool(host='api.openai.com', port=443): Max retries exceeded with url: /v1/chat/completions (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x14fec2982a10>: Failed to resolve 'api.openai.com' ([Errno -2] Name or service not known)"))
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 129, in <module>
+    main(args)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 112, in main
+    run_strategy(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 50, in kwargs_wrapper
+    return func(**kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/mcts.py", line 114, in run_mcts
+    tests_i = gen.internal_tests(item["prompt"], test_model, 6)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/py_generate.py", line 316, in internal_tests
+    return generic_generate_internal_tests(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/generator_utils.py", line 218, in generic_generate_internal_tests
+    output = model.generate_chat(messages=messages, max_tokens=1024)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 99, in generate_chat
+    return gpt_chat(self.name, messages, max_tokens, temperature, num_comps)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 326, in wrapped_f
+    return self(f, *args, **kw)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 406, in __call__
+    do = self.iter(retry_state=retry_state)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 363, in iter
+    raise retry_exc from fut.exception()
+tenacity.RetryError: RetryError[<Future at 0x14fec2982e60 state=finished raised APIConnectionError>]
+
+real	0m21.198s
+user	0m0.745s
+sys	0m0.410s
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 409, in __call__
+    result = fn(*args, **kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 62, in gpt_chat
+    response = openai.ChatCompletion.create(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 153, in create
+    response, _, api_key = requestor.request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 226, in request
+    resp, got_stream = self._interpret_response(result, stream)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 619, in _interpret_response
+    self._interpret_response_line(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 679, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.RateLimitError: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 129, in <module>
+    main(args)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 112, in main
+    run_strategy(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 50, in kwargs_wrapper
+    return func(**kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/mcts.py", line 194, in run_mcts
+    reflection = gen.self_reflection(child.solution, feedback_internal, model)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/py_generate.py", line 248, in self_reflection
+    return generic_generate_self_reflection(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/generator_utils.py", line 249, in generic_generate_self_reflection
+    reflection = model.generate_chat(messages=messages)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 99, in generate_chat
+    return gpt_chat(self.name, messages, max_tokens, temperature, num_comps)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 326, in wrapped_f
+    return self(f, *args, **kw)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 406, in __call__
+    do = self.iter(retry_state=retry_state)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 363, in iter
+    raise retry_exc from fut.exception()
+tenacity.RetryError: RetryError[<Future at 0x14e86d1b0ca0 state=finished raised RateLimitError>]
+Terminated
+
+real	2958m19.369s
+user	0m0.002s
+sys	0m0.002s

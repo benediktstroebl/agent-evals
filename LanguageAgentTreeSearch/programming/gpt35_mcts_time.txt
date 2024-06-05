@@ -1,0 +1,61 @@
+Traceback (most recent call last):
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 129, in <module>
+    main(args)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 112, in main
+    run_strategy(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 50, in kwargs_wrapper
+    return func(**kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/mcts.py", line 100, in run_mcts
+    test_model = model_factory("gpt-4")
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/factory.py", line 35, in model_factory
+    raise ValueError(f"Invalid model name: {model_name}")
+ValueError: Invalid model name: gpt-4
+
+real	0m1.741s
+user	0m0.681s
+sys	0m1.357s
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 409, in __call__
+    result = fn(*args, **kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 62, in gpt_chat
+    response = openai.ChatCompletion.create(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 153, in create
+    response, _, api_key = requestor.request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 226, in request
+    resp, got_stream = self._interpret_response(result, stream)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 619, in _interpret_response
+    self._interpret_response_line(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 679, in _interpret_response_line
+    raise self.handle_error_response(
+openai.error.InvalidRequestError: This model's maximum context length is 4097 tokens. However, you requested 4221 tokens (3197 in the messages, 1024 in the completion). Please reduce the length of the messages or completion.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 129, in <module>
+    main(args)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 112, in main
+    run_strategy(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 50, in kwargs_wrapper
+    return func(**kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/mcts.py", line 173, in run_mcts
+    new_solution = gen.func_impl(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/py_generate.py", line 272, in func_impl
+    return generate_with_accumulated_context(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/generator_utils.py", line 150, in generate_with_accumulated_context
+    func_bodies = model.generate_chat(messages=messages, num_comps=num_comps, temperature=temperature)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 99, in generate_chat
+    return gpt_chat(self.name, messages, max_tokens, temperature, num_comps)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 326, in wrapped_f
+    return self(f, *args, **kw)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 406, in __call__
+    do = self.iter(retry_state=retry_state)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 363, in iter
+    raise retry_exc from fut.exception()
+tenacity.RetryError: RetryError[<Future at 0x14e80009b9a0 state=finished raised InvalidRequestError>]
+
+real	78m14.260s
+user	0m9.543s
+sys	0m2.780s

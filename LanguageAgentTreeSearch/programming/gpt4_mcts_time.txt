@@ -1,0 +1,66 @@
+Traceback (most recent call last):
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 129, in <module>
+    main(args)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 112, in main
+    run_strategy(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/main.py", line 50, in kwargs_wrapper
+    return func(**kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/mcts.py", line 114, in run_mcts
+    tests_i = gen.internal_tests(item["prompt"], test_model, 6)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/py_generate.py", line 316, in internal_tests
+    return generic_generate_internal_tests(
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/generator_utils.py", line 218, in generic_generate_internal_tests
+    output = model.generate_chat(messages=messages, max_tokens=1024)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 99, in generate_chat
+    return gpt_chat(self.name, messages, max_tokens, temperature, num_comps)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 326, in wrapped_f
+    return self(f, *args, **kw)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 406, in __call__
+    do = self.iter(retry_state=retry_state)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 351, in iter
+    return fut.result()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/concurrent/futures/_base.py", line 451, in result
+    return self.__get_result()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/tenacity/__init__.py", line 409, in __call__
+    result = fn(*args, **kwargs)
+  File "/scratch/gpfs/bs6865/LanguageAgentTreeSearch/programming/generators/model.py", line 62, in gpt_chat
+    response = openai.ChatCompletion.create(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/chat_completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 153, in create
+    response, _, api_key = requestor.request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 216, in request
+    result = self.request_raw(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/openai/api_requestor.py", line 516, in request_raw
+    result = _thread_context.session.request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/requests/adapters.py", line 486, in send
+    resp = conn.urlopen(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connectionpool.py", line 537, in _make_request
+    response = conn.getresponse()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/site-packages/urllib3/connection.py", line 466, in getresponse
+    httplib_response = super().getresponse()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/http/client.py", line 1375, in getresponse
+    response.begin()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/http/client.py", line 318, in begin
+    version, status, reason = self._read_status()
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/http/client.py", line 279, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/socket.py", line 705, in readinto
+    return self._sock.recv_into(b)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/ssl.py", line 1307, in recv_into
+    return self.read(nbytes, buffer)
+  File "/home/bs6865/.conda/envs/lats/lib/python3.10/ssl.py", line 1163, in read
+    return self._sslobj.read(len, buffer)
+KeyboardInterrupt
+
+real	241m40.623s
+user	0m11.294s
+sys	0m2.436s

@@ -2,7 +2,7 @@ import os
 import subprocess
 import tempfile
 
-from executor_types import ExecuteResult, Executor
+from .executor_types import ExecuteResult, Executor
 
 from typing import List, Tuple, Optional
 import re
