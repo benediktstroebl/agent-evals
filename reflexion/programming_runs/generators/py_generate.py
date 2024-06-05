@@ -1,7 +1,7 @@
 from generators.model import ModelBase, message_to_str
 from .generator_types import Generator
 from .generator_utils import generic_generate_func_impl, generic_generate_internal_tests, generic_generate_self_reflection
-
+import logging
 from typing import Optional, List, Union
 import ast
 import re

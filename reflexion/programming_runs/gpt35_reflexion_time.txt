@@ -1,0 +1,9 @@
+Exception ignored in: <module 'threading' from '/home/bs6865/.conda/envs/reflexion/lib/python3.10/threading.py'>
+Traceback (most recent call last):
+  File "/home/bs6865/.conda/envs/reflexion/lib/python3.10/threading.py", line 1567, in _shutdown
+    lock.acquire()
+KeyboardInterrupt: 
+
+real	48m22.434s
+user	44m31.866s
+sys	0m8.115s

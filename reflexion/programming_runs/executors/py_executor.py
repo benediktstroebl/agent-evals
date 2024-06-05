@@ -26,7 +26,11 @@ class PyExecutor(Executor):
                 success_tests += [tests[i]]
             except Exception:
                 output = get_output(func, tests[i], timeout=timeout)
-                failed_tests += [f"{tests[i]} # output: {output}"]
+                # for gpt 35 0613 these was value error when getting output so we added except block here
+                try:
+                    failed_tests += [f"{tests[i]} # output: {output}"]
+                except:
+                    pass
                 is_passing = False
 
         state = []

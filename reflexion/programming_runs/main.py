@@ -8,6 +8,8 @@ from reflexion import run_reflexion
 from reflexion_ucs import run_reflexion_ucs
 from test_acc import run_test_acc
 from utils import read_jsonl, read_jsonl_gz
+import logging
+from logging_utils import JsonFormatter
 
 
 def get_args():
@@ -80,6 +82,18 @@ def main(args):
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
+    # Set up logger
+    logger = logging.getLogger(args.run_name)
+    logger.setLevel(logging.DEBUG)
+    # Create a file handler to output logs to a file
+    file_handler = logging.FileHandler(os.path.join(log_dir, f'{dataset_name}_{args.strategy}_{args.model}.log'))
+    file_handler.setLevel(logging.DEBUG)
+    # Set the JSON formatter for the handler
+    file_handler.setFormatter(JsonFormatter())
+    # Add the handler to the logger
+    logger.addHandler(file_handler)
+    logger.info("Starting the run", extra={"run_parameters": dict(args._get_kwargs()), "type": "run_started"})
+
     # check if the strategy is valid
     run_strategy = strategy_factory(args.strategy)
 
@@ -115,7 +129,8 @@ pass@k: {args.pass_at_k}
         log_path=log_path,
         verbose=args.verbose,
         expansion_factor=args.expansion_factor,
-        is_leetcode=args.is_leetcode
+        is_leetcode=args.is_leetcode,
+        logger=logger
     )
 
     print(f"Done! Check out the logs in `{log_path}`")
