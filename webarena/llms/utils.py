@@ -1,6 +1,6 @@
 import argparse
 from typing import Any
-
+import logging
 from llms import (
     generate_from_huggingface_completion,
     generate_from_openai_chat_completion,
@@ -14,6 +14,7 @@ APIInput = str | list[Any] | dict[str, Any]
 def call_llm(
     lm_config: lm_config.LMConfig,
     prompt: APIInput,
+    logger: logging.Logger,
 ) -> str:
     response: str
     if lm_config.provider == "openai":
@@ -27,6 +28,7 @@ def call_llm(
                 context_length=lm_config.gen_config["context_length"],
                 max_tokens=lm_config.gen_config["max_tokens"],
                 stop_token=None,
+                logger=logger,
             )
         elif lm_config.mode == "completion":
             assert isinstance(prompt, str)
@@ -37,6 +39,7 @@ def call_llm(
                 max_tokens=lm_config.gen_config["max_tokens"],
                 top_p=lm_config.gen_config["top_p"],
                 stop_token=lm_config.gen_config["stop_token"],
+                logger=logger,
             )
         else:
             raise ValueError(

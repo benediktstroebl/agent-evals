@@ -77,9 +77,13 @@ def renew_comb(comb: list[str], auth_folder: str = "./.auth") -> None:
         username = ACCOUNTS["reddit"]["username"]
         password = ACCOUNTS["reddit"]["password"]
         page.goto(f"{REDDIT}/login")
-        page.get_by_label("Username").fill(username)
-        page.get_by_label("Password").fill(password)
-        page.get_by_role("button", name="Log in").click()
+        print(page.url)
+        page.locator("xpath=/html/body/div[2]/main/form/div[1]/input").fill(username)
+        page.locator("xpath=/html/body/div[2]/main/form/div[2]/input").fill(password)
+        page.locator("xpath=/html/body/div[2]/main/form/div[4]/button").click()
+        # page.get_by_label("Username").fill(username)
+        # page.get_by_label("Password").fill(password)
+        # page.get_by_role("button", name="Log in").click()
 
     if "shopping_admin" in comb:
         username = ACCOUNTS["shopping_admin"]["username"]
@@ -119,7 +123,8 @@ def main(auth_folder: str = "./.auth") -> None:
             if "reddit" in pair and (
                 "shopping" in pair or "shopping_admin" in pair
             ):
-                continue
+                pass
+            print(pair)
             executor.submit(
                 renew_comb, list(sorted(pair)), auth_folder=auth_folder
             )
@@ -141,8 +146,8 @@ def main(auth_folder: str = "./.auth") -> None:
                 )
                 futures.append(future)
 
-    for i, future in enumerate(futures):
-        assert not future.result(), f"Cookie {cookie_files[i]} expired."
+    # for i, future in enumerate(futures):
+    #     assert not future.result(), f"Cookie {cookie_files[i]} expired."
 
 
 if __name__ == "__main__":

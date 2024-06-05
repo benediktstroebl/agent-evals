@@ -6,6 +6,8 @@ from urllib.parse import urlparse
 import requests
 from playwright.sync_api import CDPSession, Page
 
+import logging
+
 from browser_env.env_config import (
     ACCOUNTS,
     GITLAB,
@@ -143,7 +145,7 @@ def gitlab_get_project_memeber_role(page: Page, account_name: str) -> str:
     return role
 
 
-def llm_fuzzy_match(pred: str, reference: str, question: str) -> float:
+def llm_fuzzy_match(pred: str, reference: str, question: str, logger: logging.Logger, model_name: str) -> float:
     """Check whether the prediction matches the reference with GPT4-turbo"""
     messages: list[dict[str, Any]] = []
     # construct the question to ask
@@ -159,12 +161,13 @@ def llm_fuzzy_match(pred: str, reference: str, question: str) -> float:
     ]
 
     response = generate_from_openai_chat_completion(
-        model="gpt-4-1106-preview",
+        model=model_name,
         messages=messages,
         temperature=0,
         max_tokens=768,
         top_p=1.0,
         context_length=0,
+        logger=logger
     ).lower()
     if "partially correct" in response or "incorrect" in response:
         return 0.0
@@ -173,7 +176,7 @@ def llm_fuzzy_match(pred: str, reference: str, question: str) -> float:
         return 1.0
 
 
-def llm_ua_match(pred: str, reference: str, question: str) -> float:
+def llm_ua_match(pred: str, reference: str, question: str, logger: logging.Logger, model_name: str) -> float:
     """Check whether the prediction matches the reference with GPT-turbo"""
     messages: list[dict[str, Any]] = []
     # construct the question to ask
@@ -194,12 +197,13 @@ def llm_ua_match(pred: str, reference: str, question: str) -> float:
     ]
 
     response = generate_from_openai_chat_completion(
-        model="gpt-4-1106-preview",
+        model=model_name,
         messages=messages,
         temperature=0,
         max_tokens=768,
         top_p=1.0,
         context_length=0,
+        logger=logger
     ).lower()
     if "different" in response:
         return 0.0

@@ -9,6 +9,8 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+import logging
+from logging_utils import JsonFormatter
 
 import openai
 
@@ -144,6 +146,7 @@ def config() -> argparse.Namespace:
 
     # logging related
     parser.add_argument("--result_dir", type=str, default="")
+    parser.add_argument("--run_name", type=str, default="run1")
     args = parser.parse_args()
 
     # check the whether the action space is compatible with the observation space
@@ -240,11 +243,13 @@ def test(
         sleep_after_execution=args.sleep_after_execution,
     )
 
-    for config_file in config_file_list:
+    for i, config_file in enumerate(config_file_list):
         try:
             render_helper = RenderHelper(
                 config_file, args.result_dir, args.action_set_tag
             )
+
+            logger_cost
 
             # get intent
             with open(config_file) as f:
@@ -276,6 +281,9 @@ def test(
 
             logger.info(f"[Config file]: {config_file}")
             logger.info(f"[Intent]: {intent}")
+
+            logger_cost.info(f"Starting {i+1}th task", extra={"task_id": task_id, "type": "task_started"})
+            start_time = time.time()
 
             agent.reset(config_file)
             trajectory: Trajectory = []
@@ -326,8 +334,12 @@ def test(
                     # add a action place holder
                     trajectory.append(create_stop_action(""))
                     break
-
-            evaluator = evaluator_router(config_file)
+            
+            end_time = time.time()
+            logger_cost.info(f"Time taken for {i+1}th task: {end_time - start_time}", extra={"task_time": end_time - start_time, 
+                                                                                        "task_id": task_id,
+                                                                                        "type": "task_finished"})
+            evaluator = evaluator_router(config_file, logger=agent.logger, model_name=args.model)
             score = evaluator(
                 trajectory=trajectory,
                 config_file=config_file,
@@ -347,7 +359,7 @@ def test(
                     Path(args.result_dir) / "traces" / f"{task_id}.zip"
                 )
 
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             logger.info(f"[OpenAI Error] {repr(e)}")
         except Exception as e:
             logger.info(f"[Unhandled Error] {repr(e)}]")
@@ -362,6 +374,7 @@ def test(
         render_helper.close()
 
     env.close()
+    logger_cost.info("Finished run", extra={"accuracy": sum(scores) / len(scores), "type": "run_finished"})
     logger.info(f"Average score: {sum(scores) / len(scores)}")
 
 
@@ -419,6 +432,22 @@ if __name__ == "__main__":
     test_file_list = []
     st_idx = args.test_start_idx
     ed_idx = args.test_end_idx
+
+    # Set up logger
+    logger_cost = logging.getLogger(args.run_name)
+    logger_cost.setLevel(logging.DEBUG)
+    # create directory for the log file if not exists
+    os.makedirs(os.path.join(args.result_dir), exist_ok=True)
+    # Create a file handler to output logs to a file
+    file_handler = logging.FileHandler(os.path.join(args.result_dir, f'webarena_{args.model}_{args.agent_type}_{args.run_name}.log'))
+    file_handler.setLevel(logging.DEBUG)
+    # Set the JSON formatter for the handler
+    file_handler.setFormatter(JsonFormatter())
+    # Add the handler to the logger
+    logger_cost.addHandler(file_handler)
+
+    logger_cost.info("Starting the run", extra={"run_parameters": args._get_kwargs(), "type": "run_started"})
+
     for i in range(st_idx, ed_idx):
         test_file_list.append(f"config_files/{i}.json")
     if "debug" not in args.result_dir:
@@ -435,5 +464,7 @@ if __name__ == "__main__":
         args.current_viewport_only = True
         dump_config(args)
 
-        agent = construct_agent(args)
+        agent = construct_agent(logger=logger_cost, args=args)
         test(args, agent, test_file_list)
+        
+

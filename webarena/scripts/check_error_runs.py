@@ -1,6 +1,4 @@
-"""Some executions may failed.
-This script checks the recordings, print the task ids.
-It deletes the recordings if needed."""
+# Some executions may failed. This script checks the recordings, print the task ids. It deletes the recordings if needed.
 import argparse
 import glob
 import os
@@ -144,11 +142,12 @@ def check_unexpected_logout(args: argparse.Namespace) -> int:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("result_folder", type=str)
+    parser.add_argument("--result_folder", type=str)
     parser.add_argument("--delete_errors", action="store_true")
     parser.add_argument("--tolerance", type=int, default=0)
 
     args = parser.parse_args()
+    print(args)
     n1 = check_unhandled_errors(args)
     n2 = check_unexpected_logout(args)
     if n1 + n2 > args.tolerance:

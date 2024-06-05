@@ -8,6 +8,7 @@ import time
 import urllib
 from pathlib import Path
 from typing import Any, Tuple, Union
+import logging
 
 from beartype import beartype
 from nltk.tokenize import word_tokenize  # type: ignore
@@ -30,8 +31,10 @@ Trajectory = list[Union[Action, StateInfo]]
 
 
 class Evaluator(object):
-    def __init__(self, eval_tag: str = "") -> None:
+    def __init__(self, logger: logging.Logger, model_name: str, eval_tag: str = "") -> None:
         self.eval_tag = eval_tag
+        self.logger = logger
+        self.model_name = model_name
 
     @beartype
     def __call__(
@@ -112,13 +115,13 @@ class StringEvaluator(Evaluator):
 
     @staticmethod
     @beartype
-    def fuzzy_match(ref: str, pred: str, intent: str) -> float:
-        return llm_fuzzy_match(pred, ref, intent)
+    def fuzzy_match(ref: str, pred: str, intent: str, logger: logging.Logger, model_name: str) -> float:
+        return llm_fuzzy_match(pred, ref, intent, logger=logger, model_name=model_name)
 
     @staticmethod
     @beartype
-    def ua_match(ref: str, pred: str, intent: str) -> float:
-        return llm_ua_match(pred, ref, intent)
+    def ua_match(ref: str, pred: str, intent: str, logger: logging.Logger, model_name: str) -> float:
+        return llm_ua_match(pred, ref, intent, logger=logger, model_name=model_name)
 
     def __call__(
         self,
@@ -160,12 +163,14 @@ class StringEvaluator(Evaluator):
                                 intent=configs["intent"],
                                 ref=configs["eval"]["string_note"],
                                 pred=pred,
+                                logger=self.logger,
+                                model_name=self.model_name,
                             )
                     else:
                         assert isinstance(value, list)
                         for reference in value:
                             score *= self.fuzzy_match(
-                                ref=reference, pred=pred, intent=intent
+                                ref=reference, pred=pred, intent=intent, logger=self.logger, model_name=self.model_name
                             )
         return score
 
@@ -250,7 +255,7 @@ class HTMLContentEvaluator(Evaluator):
         trajectory: Trajectory,
         config_file: Path | str,
         page: Page | PseudoPage,
-        client: CDPSession | None = None,
+        client: CDPSession | None = None
     ) -> float:
         with open(config_file, "r") as f:
             configs = json.load(f)
@@ -353,7 +358,7 @@ class EvaluatorComb:
 
 
 @beartype
-def evaluator_router(config_file: Path | str) -> EvaluatorComb:
+def evaluator_router(config_file: Path | str, logger: logging.Logger, model_name: str) -> EvaluatorComb:
     """Router to get the evaluator class"""
     with open(config_file, "r") as f:
         configs = json.load(f)
@@ -363,11 +368,11 @@ def evaluator_router(config_file: Path | str) -> EvaluatorComb:
     for eval_type in eval_types:
         match eval_type:
             case "string_match":
-                evaluators.append(StringEvaluator())
+                evaluators.append(StringEvaluator(logger=logger, model_name=model_name))
             case "url_match":
-                evaluators.append(URLEvaluator())
+                evaluators.append(URLEvaluator(logger=logger, model_name=model_name))
             case "program_html":
-                evaluators.append(HTMLContentEvaluator())
+                evaluators.append(HTMLContentEvaluator(logger=logger, model_name=model_name))
             case _:
                 raise ValueError(f"eval_type {eval_type} is not supported")
 

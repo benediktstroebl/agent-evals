@@ -5,6 +5,7 @@ from typing import Any
 import tiktoken
 from beartype import beartype
 
+import logging
 from agent.prompts import *
 from browser_env import Trajectory
 from browser_env.actions import (
@@ -106,11 +107,13 @@ class PromptAgent(Agent):
         action_set_tag: str,
         lm_config: lm_config.LMConfig,
         prompt_constructor: PromptConstructor,
+        logger: logging.Logger
     ) -> None:
         super().__init__()
         self.lm_config = lm_config
         self.prompt_constructor = prompt_constructor
         self.action_set_tag = action_set_tag
+        self.logger = logger
 
     def set_action_set_tag(self, tag: str) -> None:
         self.action_set_tag = tag
@@ -125,7 +128,7 @@ class PromptAgent(Agent):
         lm_config = self.lm_config
         n = 0
         while True:
-            response = call_llm(lm_config, prompt)
+            response = call_llm(lm_config, prompt, logger=self.logger)
             force_prefix = self.prompt_constructor.instruction[
                 "meta_data"
             ].get("force_prefix", "")
@@ -157,7 +160,7 @@ class PromptAgent(Agent):
         pass
 
 
-def construct_agent(args: argparse.Namespace) -> Agent:
+def construct_agent(logger, args: argparse.Namespace) -> Agent:
     llm_config = lm_config.construct_llm_config(args)
 
     agent: Agent
@@ -174,6 +177,7 @@ def construct_agent(args: argparse.Namespace) -> Agent:
             action_set_tag=args.action_set_tag,
             lm_config=llm_config,
             prompt_constructor=prompt_constructor,
+            logger=logger
         )
     else:
         raise NotImplementedError(

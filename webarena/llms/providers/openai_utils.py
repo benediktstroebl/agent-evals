@@ -6,11 +6,12 @@ import logging
 import os
 import random
 import time
+import logging
 from typing import Any
 
 import aiolimiter
+from openai import AzureOpenAI, AsyncAzureOpenAI
 import openai
-import openai.error
 from tqdm.asyncio import tqdm_asyncio
 
 
@@ -20,7 +21,7 @@ def retry_with_exponential_backoff(  # type: ignore
     exponential_base: float = 2,
     jitter: bool = True,
     max_retries: int = 3,
-    errors: tuple[Any] = (openai.error.RateLimitError,),
+    errors: tuple[Any] = (openai.RateLimitError,),
 ):
     """Retry a function with exponential backoff."""
 
@@ -64,23 +65,55 @@ async def _throttled_openai_completion_acreate(
     max_tokens: int,
     top_p: float,
     limiter: aiolimiter.AsyncLimiter,
+    logger: logging.Logger,
 ) -> dict[str, Any]:
     async with limiter:
         for _ in range(3):
             try:
-                return await openai.Completion.acreate(  # type: ignore
-                    engine=engine,
+                # set endpoints and model_names for Azure OpenAI dynamically
+                if engine=="gpt-4-turbo-2024-04-09":
+                    azure_endpoint = "https://agent-eval-east-us-2.openai.azure.com/"
+                elif engine == "gpt-4-turbo-0125":
+                    azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+                    engine = "gpt-4-0125" # 0125
+                elif engine == "gpt-3.5-turbo-0125":
+                    azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+                    engine = "gpt-35-turbo"
+                else:
+                    raise ValueError(f"CUSTOM ERROR: Unknown model {engine} for Azure OpenAI. Specify endpoint and model name manually in code.")
+                    
+                client = AsyncAzureOpenAI(
+                    api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                    api_version="2023-12-01-preview",
+                    azure_endpoint=azure_endpoint
+                )
+                start_time = time.time()
+                response = await client.completions.create(  # type: ignore
+                    model=engine,
                     prompt=prompt,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     top_p=top_p,
                 )
-            except openai.error.RateLimitError:
+                end_time = time.time()
+                logger.info("OpenAI API call", extra={"input_messages": prompt,
+                                                            "output_messages": response.choices[0].text.strip(),
+                                                           "prompt_tokens": response.usage.prompt_tokens,
+                                                           "completion_tokens": response.usage.completion_tokens, 
+                                                           "total_tokens": response.usage.total_tokens,
+                                                            "inference_time": end_time - start_time,
+                                                            "temperature": temperature,
+                                                           "model_name": engine,
+                                                           "max_tokens": max_tokens,
+                                                           "type": "api_call"})
+
+                return response
+            except openai.RateLimitError:
                 logging.warning(
                     "OpenAI API rate limit exceeded. Sleeping for 10 seconds."
                 )
                 await asyncio.sleep(10)
-            except openai.error.APIError as e:
+            except openai.APIError as e:
                 logging.warning(f"OpenAI API error: {e}")
                 break
         return {"choices": [{"message": {"content": ""}}]}
@@ -108,12 +141,12 @@ async def agenerate_from_openai_completion(
     Returns:
         List of generated responses.
     """
-    if "OPENAI_API_KEY" not in os.environ:
-        raise ValueError(
-            "OPENAI_API_KEY environment variable must be set when using OpenAI API."
-        )
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
+    # if "OPENAI_API_KEY" not in os.environ:
+    #     raise ValueError(
+    #         "OPENAI_API_KEY environment variable must be set when using OpenAI API."
+    #     )
+    # openai.api_key = os.environ["OPENAI_API_KEY"]
+    # openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
 
     limiter = aiolimiter.AsyncLimiter(requests_per_minute)
     async_responses = [
@@ -139,15 +172,35 @@ def generate_from_openai_completion(
     max_tokens: int,
     top_p: float,
     context_length: int,
-    stop_token: str | None = None,
+    logger: logging.Logger,
+    stop_token: str | None = None
 ) -> str:
-    if "OPENAI_API_KEY" not in os.environ:
-        raise ValueError(
-            "OPENAI_API_KEY environment variable must be set when using OpenAI API."
-        )
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
-    response = openai.Completion.create(  # type: ignore
+    # if "OPENAI_API_KEY" not in os.environ:
+    #     raise ValueError(
+    #         "OPENAI_API_KEY environment variable must be set when using OpenAI API."
+    #     )
+    # openai.api_key = os.environ["OPENAI_API_KEY"]
+    # openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
+
+    # set endpoints and model_names for Azure OpenAI dynamically
+    if engine=="gpt-4-turbo-2024-04-09":
+        azure_endpoint = "https://agent-eval-east-us-2.openai.azure.com/"
+    elif engine == "gpt-4-turbo-0125":
+                    azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+                    engine = "gpt-4-0125" # 0125
+    elif engine == "gpt-3.5-turbo-0125":
+        azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+        engine = "gpt-35-turbo"
+    else:
+        raise ValueError(f"CUSTOM ERROR: Unknown model {engine} for Azure OpenAI. Specify endpoint and model name manually in code.")
+        
+    client = AzureOpenAI(
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+        api_version="2023-12-01-preview",
+        azure_endpoint=azure_endpoint
+    )
+    start_time = time.time()
+    response = client.completions.create(  # type: ignore
         prompt=prompt,
         engine=engine,
         temperature=temperature,
@@ -155,6 +208,18 @@ def generate_from_openai_completion(
         top_p=top_p,
         stop=[stop_token],
     )
+    end_time = time.time()
+    logger.info("OpenAI API call", extra={"input_messages": prompt,
+                                                            "output_messages": response.choices[0].text,
+                                                           "prompt_tokens": response.usage.prompt_tokens,
+                                                           "completion_tokens": response.usage.completion_tokens, 
+                                                           "total_tokens": response.usage.total_tokens,
+                                                            "inference_time": end_time - start_time,
+                                                            "temperature": temperature,
+                                                           "model_name": engine,
+                                                           "max_tokens": max_tokens,
+                                                           "type": "api_call"})
+
     answer: str = response["choices"][0]["text"]
     return answer
 
@@ -166,18 +231,49 @@ async def _throttled_openai_chat_completion_acreate(
     max_tokens: int,
     top_p: float,
     limiter: aiolimiter.AsyncLimiter,
+    logger: logging.Logger,
 ) -> dict[str, Any]:
     async with limiter:
         for _ in range(3):
             try:
-                return await openai.ChatCompletion.acreate(  # type: ignore
+                # set endpoints and model_names for Azure OpenAI dynamically
+                if model=="gpt-4-turbo-2024-04-09":
+                    azure_endpoint = "https://agent-eval-east-us-2.openai.azure.com/"
+                elif model == "gpt-4-turbo-0125":
+                    azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+                    model = "gpt-4-0125" # 0125
+                elif model == "gpt-3.5-turbo-0125":
+                    azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+                    model = "gpt-35-turbo"
+                else:
+                    raise ValueError(f"CUSTOM ERROR: Unknown model {model} for Azure OpenAI. Specify endpoint and model name manually in code.")
+                    
+                client = AsyncAzureOpenAI(
+                    api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                    api_version="2023-12-01-preview",
+                    azure_endpoint=azure_endpoint
+                )
+                start_time = time.time()
+                response = await client.completions.create(  # type: ignore
                     model=model,
                     messages=messages,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     top_p=top_p,
                 )
-            except openai.error.RateLimitError:
+                end_time = time.time()
+                logger.info("OpenAI API call", extra={"input_messages": [message for message in messages],
+                                                            "output_messages": response.choices[0].text.strip(),
+                                                           "prompt_tokens": response.usage.prompt_tokens,
+                                                           "completion_tokens": response.usage.completion_tokens, 
+                                                           "total_tokens": response.usage.total_tokens,
+                                                            "inference_time": end_time - start_time,
+                                                            "temperature": temperature,
+                                                           "model_name": model,
+                                                           "max_tokens": max_tokens,
+                                                           "type": "api_call"})
+                return response
+            except openai.RateLimitError:
                 logging.warning(
                     "OpenAI API rate limit exceeded. Sleeping for 10 seconds."
                 )
@@ -185,7 +281,7 @@ async def _throttled_openai_chat_completion_acreate(
             except asyncio.exceptions.TimeoutError:
                 logging.warning("OpenAI API timeout. Sleeping for 10 seconds.")
                 await asyncio.sleep(10)
-            except openai.error.APIError as e:
+            except openai.APIError as e:
                 logging.warning(f"OpenAI API error: {e}")
                 break
         return {"choices": [{"message": {"content": ""}}]}
@@ -198,6 +294,7 @@ async def agenerate_from_openai_chat_completion(
     max_tokens: int,
     top_p: float,
     context_length: int,
+    logger: logging.Logger,
     requests_per_minute: int = 300,
 ) -> list[str]:
     """Generate from OpenAI Chat Completion API.
@@ -213,12 +310,12 @@ async def agenerate_from_openai_chat_completion(
     Returns:
         List of generated responses.
     """
-    if "OPENAI_API_KEY" not in os.environ:
-        raise ValueError(
-            "OPENAI_API_KEY environment variable must be set when using OpenAI API."
-        )
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
+    # if "OPENAI_API_KEY" not in os.environ:
+    #     raise ValueError(
+    #         "OPENAI_API_KEY environment variable must be set when using OpenAI API."
+    #     )
+    # openai.api_key = os.environ["OPENAI_API_KEY"]
+    # openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
 
     limiter = aiolimiter.AsyncLimiter(requests_per_minute)
     async_responses = [
@@ -229,6 +326,7 @@ async def agenerate_from_openai_chat_completion(
             max_tokens=max_tokens,
             top_p=top_p,
             limiter=limiter,
+            logger=logger,
         )
         for message in messages_list
     ]
@@ -244,16 +342,36 @@ def generate_from_openai_chat_completion(
     max_tokens: int,
     top_p: float,
     context_length: int,
-    stop_token: str | None = None,
+    logger: logging.Logger,
+    stop_token: str | None = None
 ) -> str:
-    if "OPENAI_API_KEY" not in os.environ:
-        raise ValueError(
-            "OPENAI_API_KEY environment variable must be set when using OpenAI API."
-        )
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
+    # if "OPENAI_API_KEY" not in os.environ:
+    #     raise ValueError(
+    #         "OPENAI_API_KEY environment variable must be set when using OpenAI API."
+    #     )
+    # openai.api_key = os.environ["OPENAI_API_KEY"]
+    # openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
 
-    response = openai.ChatCompletion.create(  # type: ignore
+    # set endpoints and model_names for Azure OpenAI dynamically
+    if model=="gpt-4-turbo-2024-04-09":
+        azure_endpoint = "https://agent-eval-east-us-2.openai.azure.com/"
+    elif model == "gpt-4-turbo-0125":
+        azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+        model = "gpt-4-0125" # 0125
+    elif model == "gpt-3.5-turbo-0125":
+        azure_endpoint="https://gpt-35-turbo-agent-eval.openai.azure.com/"
+        model = "gpt-35-turbo"
+    else:
+        raise ValueError(f"CUSTOM ERROR: Unknown model {model} for Azure OpenAI. Specify endpoint and model name manually in code.")
+        
+    client = AzureOpenAI(
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+        api_version="2023-12-01-preview",
+        azure_endpoint=azure_endpoint
+    )
+
+    start_time = time.time()
+    response = client.chat.completions.create(  # type: ignore
         model=model,
         messages=messages,
         temperature=temperature,
@@ -261,7 +379,20 @@ def generate_from_openai_chat_completion(
         top_p=top_p,
         stop=[stop_token] if stop_token else None,
     )
-    answer: str = response["choices"][0]["message"]["content"]
+    end_time = time.time()
+
+    logger.info("OpenAI API call", extra={"input_messages": [message for message in messages],
+                                                            "output_messages": response.choices[0].message.content,
+                                                           "prompt_tokens": response.usage.prompt_tokens,
+                                                           "completion_tokens": response.usage.completion_tokens, 
+                                                           "total_tokens": response.usage.total_tokens,
+                                                            "inference_time": end_time - start_time,
+                                                            "temperature": temperature,
+                                                           "model_name": model,
+                                                           "max_tokens": max_tokens,
+                                                           "type": "api_call"})
+
+    answer: str = response.choices[0].message.content
     return answer
 
 
@@ -276,11 +407,11 @@ def fake_generate_from_openai_chat_completion(
     context_length: int,
     stop_token: str | None = None,
 ) -> str:
-    if "OPENAI_API_KEY" not in os.environ:
-        raise ValueError(
-            "OPENAI_API_KEY environment variable must be set when using OpenAI API."
-        )
-    openai.api_key = os.environ["OPENAI_API_KEY"]
-    openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
+    # if "OPENAI_API_KEY" not in os.environ:
+    #     raise ValueError(
+    #         "OPENAI_API_KEY environment variable must be set when using OpenAI API."
+    #     )
+    # openai.api_key = os.environ["OPENAI_API_KEY"]
+    # openai.organization = os.environ.get("OPENAI_ORGANIZATION", "")
     answer = "Let's think step-by-step. This page shows a list of links and buttons. There is a search box with the label 'Search query'. I will click on the search box to type the query. So the action I will perform is \"click [60]\"."
     return answer
