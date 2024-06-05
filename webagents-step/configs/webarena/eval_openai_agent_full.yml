@@ -4,8 +4,8 @@ verbose: 1
 debug: False
 logdir: "data/webarena/eval/step_full/gpt-4-turbo-2024-04-09"
 agent:
-  type: "step" # "flat_fewshot4k", "flat_fewshot8k"
-  root_action: 'maps_agent'
+  type: "step" 
+  root_action: 'maps_agent' # set: shopping_agent, shopping_admin_agent, reddit_agent, github_agent
   low_level_action_list: ['click', 'type', 'scroll', 'stop', 'goto', 'hover', 'note', 'go_back']
   model_name: "gpt-4-turbo-2024-04-09"
   #model_name: "gpt-3.5-turbo-0125"
