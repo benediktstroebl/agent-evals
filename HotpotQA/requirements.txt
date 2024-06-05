@@ -24,7 +24,7 @@ dill==0.3.7
 distlib==0.3.8
 distro==1.9.0
 dnspython==2.6.1
--e git+https://github.com/benediktstroebl/dspy.git@54d9d75b17a7e07540fd5acf8203400080f71e2d#egg=dspy_ai
+-e git+https://github.com/benediktstroebl/dspy.git#egg=dspy_ai
 entrypoints @ file:///home/conda/feedstock_root/build_artifacts/entrypoints_1643888246732/work
 exceptiongroup @ file:///home/conda/feedstock_root/build_artifacts/exceptiongroup_1704921103267/work
 executing @ file:///home/conda/feedstock_root/build_artifacts/executing_1698579936712/work
