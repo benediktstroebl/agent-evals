@@ -18,7 +18,7 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-    install_requires=read_requirements_file("requirements.txt"),
+    # install_requires=read_requirements_file("requirements.txt"),
     entry_points={},
     include_package_data=True,
     python_requires=">=3.6",

@@ -6,7 +6,7 @@ from typing import List, Dict
 import re
 
 class StepAgent(Agent):
-    def __init__(self, max_actions: int = 10, verbose: bool = False, logging: bool = False, 
+    def __init__(self, logger, max_actions: int = 10, verbose: bool = False, logging: bool = False, 
                  debug: bool = False, 
                  root_action: str = None,
                  action_to_prompt_dict: Dict = None,
@@ -21,6 +21,7 @@ class StepAgent(Agent):
         self.model = model
         self.prompt_mode = prompt_mode
         self.stack = Stack()
+        self.logger = logger
     
     def is_done(self, action):
         if "stop" in action:
@@ -47,7 +48,8 @@ class StepAgent(Agent):
             debug=self.debug,
             previous_actions=[],
             previous_reasons=[], 
-            previous_responses=[]
+            previous_responses=[],
+            logger=self.logger
         )
         return {'agent': agent, 'objective': objective}
     
@@ -67,7 +69,8 @@ class StepAgent(Agent):
             debug=self.debug,
             previous_actions=[],
             previous_reasons=[], 
-            previous_responses=[]
+            previous_responses=[],
+            logger=self.logger
         )
         return {'agent': agent, 'objective': objective}
         

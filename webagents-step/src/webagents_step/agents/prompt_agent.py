@@ -3,7 +3,7 @@ from typing import List
 from webagents_step.utils.llm import fill_prompt_template, construct_llm_message_openai, call_openai_llm, parse_action_reason, calculate_cost_openai
 
 class PromptAgent(Agent):
-    def __init__(self, max_actions: int = 10, verbose: bool = False, logging: bool = False, 
+    def __init__(self, logger, max_actions: int = 10, verbose: bool = False, logging: bool = False, 
                  debug: bool = False, prompt_template: str = None, model: str = "gpt-3.5-turbo", 
                  prompt_mode: str = "chat", previous_actions: List = None, previous_reasons: List = None, previous_responses: List = None):
         super().__init__(max_actions=max_actions, verbose=verbose, logging=logging, previous_actions=previous_actions, previous_reasons=previous_reasons, previous_responses=previous_responses)        
@@ -11,6 +11,7 @@ class PromptAgent(Agent):
         self.prompt_template = prompt_template
         self.model = model
         self.prompt_mode = prompt_mode
+        self.logger = logger
 
     def previous_history(self):
         previous_history = []
@@ -33,7 +34,7 @@ class PromptAgent(Agent):
                                       observation=observation, url=url, 
                                       previous_history=self.previous_history())
         messages = construct_llm_message_openai(prompt=prompt, prompt_mode=self.prompt_mode)
-        model_response = call_openai_llm(messages=messages, model=self.model)
+        model_response = call_openai_llm(logger=self.logger, messages=messages, model=self.model)
         action, reason = parse_action_reason(model_response)
                 
         if self.logging:

@@ -1,3 +1,8 @@
+import os
+import dataclasses
+import time
+import logging
+from openai import AzureOpenAI
 import openai
 import re
 import copy
@@ -119,7 +124,7 @@ def construct_llm_message_openai(prompt, prompt_mode):
         messages_completion = [{"role": "user", "content": all_content}]
         return messages_completion
 
-def call_openai_llm(messages, model="gpt-3.5-turbo", **model_kwargs):
+def call_openai_llm(messages, logger, model="gpt-3.5-turbo", **model_kwargs):
     """
     Sends a request with a chat conversation to OpenAI's chat API and returns a response.
 
@@ -144,33 +149,67 @@ def call_openai_llm(messages, model="gpt-3.5-turbo", **model_kwargs):
     num_attempts = 0
     while True:
         try:
+            # set endpoints and model_names for Azure OpenAI dynamically
+            if model=="gpt-4-turbo-2024-04-09":
+                azure_endpoint = "https://agent-eval-east-us-2.openai.azure.com/"
+            else:
+                raise ValueError(f"CUSTOM ERROR: Unknown model {model} for Azure OpenAI. Specify endpoint and model name manually in code.")
+                
+            client = AzureOpenAI(
+                api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+                api_version="2023-12-01-preview",
+                azure_endpoint=azure_endpoint
+            )
             if model=="text-davinci-003":
-                response = openai.Completion.create(
+                start_time = time.time()
+                max_tokens = 128
+                response = client.chat.completions.create(
                 model=model,
                 prompt=messages[0]["content"],
                 temperature=temperature,
                 top_p=top_p,
                 n=n,
-                max_tokens=128)
+                max_tokens=max_tokens)
+                end_time = time.time()
+                logger.info("OpenAI API call", extra={"input_messages": [message for message in messages],
+                                                            "output_messages": response.choices[0].text.strip(),
+                                                           "prompt_tokens": response.usage.prompt_tokens,
+                                                           "completion_tokens": response.usage.completion_tokens, 
+                                                           "total_tokens": response.usage.total_tokens,
+                                                            "inference_time": end_time - start_time,
+                                                            "temperature": temperature,
+                                                           "model_name": model,
+                                                           "max_tokens": max_tokens,
+                                                           "type": "api_call"})
                 return response.choices[0].text.strip()
-                        
-            response = openai.ChatCompletion.create(
+            start_time = time.time()
+            response = client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
                 top_p=top_p,
                 n=n
             )
+            end_time = time.time()
+            logger.info("OpenAI API call", extra={"input_messages": [message for message in messages],
+                                                        "output_messages": response.choices[0].message.content.strip(),
+                                                        "prompt_tokens": response.usage.prompt_tokens,
+                                                        "completion_tokens": response.usage.completion_tokens, 
+                                                        "total_tokens": response.usage.total_tokens,
+                                                        "inference_time": end_time - start_time,
+                                                        "temperature": temperature,
+                                                        "model_name": model,
+                                                        "type": "api_call"})
             return response.choices[0].message.content.strip()
-        except openai.error.AuthenticationError as e:
+        except openai.AuthenticationError as e:
             print(e)
             return None
-        except openai.error.RateLimitError as e:
+        except openai.RateLimitError as e:
             print(e)
             print("Sleeping for 10 seconds...")
             sleep(10)
             num_attempts += 1
-        except openai.error.ServiceUnavailableError as e:
+        except openai.ServiceUnavailableError as e:
             print(e)
             print("Sleeping for 10 seconds...")
             sleep(10)

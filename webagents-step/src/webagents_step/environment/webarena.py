@@ -35,8 +35,10 @@ from browser_env import (
 )
 from evaluation_harness.evaluators import evaluator_router
 
+import traceback
+
 class WebArenaEnvironmentWrapper(WebEnvironment):
-    def __init__(self, config_file, max_browser_rows=300, max_steps=50, slow_mo=1, observation_type="accessibility_tree", current_viewport_only=False, viewport_size={"width": 1280, "height": 720}, headless=False):
+    def __init__(self, config_file, max_browser_rows=300, max_steps=50, slow_mo=1, observation_type="accessibility_tree", current_viewport_only=False, viewport_size={"width": 1280, "height": 720}, headless=False, logger=None, model_name=None):
         self.webarena_env = ScriptBrowserEnv(
                     headless=headless,
                     slow_mo=slow_mo,
@@ -57,6 +59,9 @@ class WebArenaEnvironmentWrapper(WebEnvironment):
         self.steps = 0
         self.is_done = False
         self.reward = 0.0
+
+        self.logger = logger
+        self.model_name = model_name
         
         self.trajectory: Trajectory = []
         self.update_webarena_metrics()
@@ -91,7 +96,7 @@ class WebArenaEnvironmentWrapper(WebEnvironment):
 
     def step(self, action):
         self.steps = self.steps + 1
-        print(f"[Step {self.steps}] {action}")
+
         
         if self.steps > self.max_steps:
             print(f"Steps {self.steps} exceeded maximum {self.max_steps}")
@@ -101,8 +106,28 @@ class WebArenaEnvironmentWrapper(WebEnvironment):
             return self.status()
 
         if action is None or action is "" or ("note [" in action):
+            print(f"[Step {self.steps}] {action}")
             action_cmd = None
         else:
+            #### The blow two blocks are commented out to disable the rerouting of find_user policy reddit and the formatting fix of the action that we did for some experiments compared to original authors code
+            # if "type" in action:
+            #     # action got formatted wrong sometimes, so we need to reformat it
+            #     parts = action.split()
+            #     formatted_string = f"type [{parts[1]}] [{' '.join(parts[2:-1]).strip()}] [{parts[-1]}]"
+            #     # replace "[[" and "]]" with single brackets
+            #     action = formatted_string.replace("[[", "[").replace("]]", "]")
+            #     # replace – with space
+            #     action = action.replace("-", " ").replace("–", " ")
+
+            ### REROUTING FIND_USER POLICY REDDIT (DECOMMENT TO ENABLE REROUTING)
+            # if ("goto [" in action) and ("/user/" in action):
+            #     print("REROUTING")
+            #     action = action.replace("/user/", "/user_name/")
+            # elif ("goto [" in action) and ("/user_name/" in action):
+            #     print("REROUTING")
+            #     action = action.replace("/user_name/", "/user/")
+
+            print(f"[Step {self.steps}] {action}")
             action_cmd = create_id_based_action(action)
 
         if action_cmd:
@@ -127,8 +152,9 @@ class WebArenaEnvironmentWrapper(WebEnvironment):
             
         if self.is_done:    
             try:
-                evaluator = evaluator_router(self.config_file)
+                evaluator = evaluator_router(self.config_file, logger=self.logger, model_name=self.model_name)
                 self.reward = evaluator(trajectory=self.trajectory, config_file=self.config_file, page=self.webarena_env.page, client=self.webarena_env.get_page_client(self.webarena_env.page))
             except Exception as e:
                 print(f"Got excepetion: {e}")
+                print(traceback.format_exc())
                 self.reward = 0
