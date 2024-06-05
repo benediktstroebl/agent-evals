@@ -128,7 +128,7 @@ def get_code_body(response):
         return response
 
 class PyGenerator:
-    def ldb_debug(self, prompt: str, prev_func_impl: str, failed_test: str, entry: str, model: ModelBase, messages: List[Message], dataset_type: str = "", level: str = "block") -> str:
+    def ldb_debug(self, prompt: str, prev_func_impl: str, failed_test: str, entry: str, model: ModelBase, messages: List[Message], dataset_type: str = "", level: str = "block", temperature: float = 0.0) -> str:
         prev_func_impl = trim_header(prev_func_impl)
         failed_test_string = failed_test.split("# Real Execution Output:")[0]
         real_test_output = failed_test.split("# Real Execution Output:")[1]
@@ -226,7 +226,7 @@ class PyGenerator:
             msg[0].content += "\n"
             messages += msg
             print_messages(msg)
-            explanation_all = model.generate_chat(messages=messages, num_comps=1, temperature=0, stop=['[debug end]', 'Here is the updated code:'])
+            explanation_all = model.generate_chat(messages=messages, num_comps=1, temperature=temperature, stop=['[debug end]', 'Here is the updated code:'])
 
             #wrong_block, explanation = parse_explanation(explanation_all, trace_blocks, prev_func_impl)
             msg = [
@@ -309,7 +309,7 @@ class PyGenerator:
             delta_msg += "\n[debug]"
             messages += delta_msg
             print(delta_msg)
-            explanation = model.generate_completion(messages=messages, stop=["[/debug]"], temperature=0)
+            explanation = model.generate_completion(messages=messages, stop=["[/debug]"], temperature=temperature)
             delta_msg = "\n" + explanation.strip() + "\n[/debug]"
             messages += delta_msg
             print(delta_msg)
@@ -431,7 +431,7 @@ class PyGenerator:
                     content=user_prompt,
                 ),
             ]
-            func_bodies = model.generate_chat(messages=messages, num_comps=num_comps, temperature=0)
+            func_bodies = model.generate_chat(messages=messages, num_comps=num_comps, temperature=temperature)
         else:
             messages = f"# Write Python function to complete the task and pass the assertion tests.\n\n### Task Start ###\n# These are the assertions for your function:\nassert similar_elements((3, 4, 5, 6),(5, 7, 4, 10)) == (4, 5)\n\ndef similar_elements(test_tup1, test_tup2):\n\"\"\" Write a function to find the similar elements from the given two tuple lists. \"\"\"\n    res = tuple(set(test_tup1) & set(test_tup2))\n    return (res)\n### Task End ###\n\n### Task Start ###\n# These are the assertions for your function:\nassert is_not_prime(2) == False\n\nimport math\ndef is_not_prime(n):\n    \"\"\" Write a python function to identify non-prime numbers. \"\"\"\n    result = False\n    for i in range(2,int(math.sqrt(n)) + 1):\n        if n % i == 0:\n            result = True\n    return result\n### Task End ###\n\n### Task Start ###\n# These are the assertions for your function:\nassert heap_queue_largest( [25, 35, 22, 85, 14, 65, 75, 22, 58],3)==[85, 75, 65]\n\nimport heapq as hq\ndef heap_queue_largest(nums,n):\n    \"\"\" Write a function to find the largest integers from a given list of numbers using heap queue algorithm. \"\"\"\n    largest_nums = hq.nlargest(n, nums)\n    return largest_nums\n### Task End ###\n\n### Task Start ###\n# These are the assertions for your function:\n{given_tests[0].strip()}\n\n{func_sig.strip()}"
             print(messages)

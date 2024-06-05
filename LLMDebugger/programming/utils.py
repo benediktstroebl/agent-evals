@@ -136,6 +136,10 @@ def read_jsonl_map(path: str) -> List[dict]:
     items = {}
     with jsonlines.open(path) as reader:
         for item in reader:
+            # if item has key name, then rename it to task_id
+            if 'name' in item:
+                item['task_id'] = item['name']
+                del item['name']
             items[item['task_id']] = item
     return items
 
@@ -166,13 +170,28 @@ def replace_seed_test(item, items_seed, items_test):
         item['given_tests'] = items_test[item['task_id']]['given_tests']
     else:
         item['given_tests'] = []
+
     return item
 
 def enumerate_resume(dataset, results_path, seedfile = None, testfile = None):
     items_seed = {}
+    items_seed_cleaned = {}
     items_test = {}
     if seedfile is not None:
         items_seed = read_jsonl_map(seedfile)
+        # replace each key in items_seed
+        for key, value in items_seed.items():
+            if "_" in key:
+                items_seed_cleaned["HumanEval/" + key.split("_")[1]] = value
+            else:
+                items_seed_cleaned[key] = value
+
+        items_seed = items_seed_cleaned
+
+        for item in items_seed:
+            if "_" in items_seed[item]['task_id']:
+                items_seed[item]['task_id'] = f"HumanEval/{items_seed[item]['task_id'].split('_')[1]}"
+        
     if testfile is not None:
         print("testfile", testfile)
         items_test = read_jsonl_map(testfile)

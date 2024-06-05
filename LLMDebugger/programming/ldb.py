@@ -7,12 +7,16 @@ import random
 from transformers import GPT2Tokenizer
 from utils import *
 import sys
+import logging
+import time
 tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 
-def debug(i, item, log_path, model_name, num_items, pass_at_k, max_iters, port="", level = "block"):
+MODEL_BOOSTING = True
+
+def debug(i, item, log_path, model_name, num_items, pass_at_k, max_iters, port="", level = "block", logger = None):
     exe = PyExecutor()
     gen = PyGenerator()
-    model = model_factory(model_name, port)
+    model = model_factory(model_name, port, logger=logger, client_type="openai")
     cur_pass = 0
     is_solved = False
     implementations = []
@@ -26,6 +30,16 @@ def debug(i, item, log_path, model_name, num_items, pass_at_k, max_iters, port="
         # clean test_i
         tests_i = [test for test in tests_i if item['entry_point'] in test and 'assert False' not in test]
         # first attempt
+        print("SEED")
+        print(item["task_id"])
+        print(item["seed"])
+        # if there is no solution in the seed, we skip this task (happened for gpt35-0613)
+        if item["seed"] == None:
+            is_passing = False
+            is_solved = False
+            item['is_passing'] = False
+            item['is_solved'] = False
+            break
         cur_func_impl = prepare_function_from_seed(dataset_type, item["prompt"], item["seed"], item["entry_point"])
         implementations.append(cur_func_impl)
         # call the executor to return failed_test
@@ -46,6 +60,7 @@ def debug(i, item, log_path, model_name, num_items, pass_at_k, max_iters, port="
             # The output is 
             # 1. the wrong blocks [wrong block]
             # 2. the explanation [explanation]
+
             if dataset_type in ["HumanEval", "MBPP"]:
                 # Add comments
                 if not find_comment(cur_func_impl, item["entry_point"]):
@@ -117,16 +132,24 @@ def run_ldb(
     seedfile: str = None,
     testfile: str = None,
     port: str = "",
-    level: str = "block"
+    level: str = "block",
+    logger: logging.Logger = None,
 ) -> None:
     print("Number of proc:", n_proc)
     num_items = len(dataset)
     args = iter([(i, item, log_path, model_name, num_items, pass_at_k, max_iters, port, level) for i, item in enumerate_resume(dataset, log_path, seedfile, testfile)])
     if n_proc == 1:
         for item in args:
-            debug(*item)
+            logger.info(f"Starting {item[0]+1}th task", extra={"task_id": item[1]["task_id"], "type": "task_started"})
+            start_time = time.time()
+            debug(*item, logger=logger)
+            end_time = time.time()
+            logger.info(f"Time taken for {item[0]+1}th task: {end_time - start_time}", extra={"task_time": end_time - start_time, 
+                                                                                        "task_id": item[1]["task_id"],
+                                                                                        "type": "task_finished"})
     else:
         with Pool(n_proc) as pool:
             pool.starmap(debug, args)
     print("Accuracy:", count_solved(log_path))
+    logger.info("Finished run", extra={"accuracy": count_solved(log_path), "type": "run_finished"})
     

@@ -12,7 +12,7 @@
   </a>
 </p>
 
-This repository contains the code and dataset for our paper [**LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step**.(ACL 2024)](https://arxiv.org/abs/2402.16906)
+This repository contains the code and dataset for our paper [**LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step**.](https://arxiv.org/abs/2402.16906)
 
 We introduce 🛠️**LDB**, a novel debugging framework that enables LLMs to refine their generated programs with the runtime execution information. Specifically, LDB imitates how human developers debug programs. It segments the programs into basic blocks and tracks the values of intermediate variables after each block throughout the runtime execution. This allows LLMs to concentrate on simpler code units within the overall execution flow, verify their correctness against the task description block by block, and efficiently pinpoint any potential errors.
 
@@ -127,7 +127,7 @@ fixed_code, messages = gen.ldb_generate(
     dataset_type=dataset_type,
 )
 ```
-For more details, see the example usage in our [demo](https://huggingface.co/spaces/shangdatalab-ucsd/LDB).
+For more details, see the example usage in our [demo](https://huggingface.co/spaces/shangdatalab-ucsd/LDB/blob/a77e7968f83d8ec498457f2c1fa1295ccef20e22/demo.py#L73).
 
 ## 🐞 Bugs or Questions?
 
@@ -137,13 +137,14 @@ If you have any questions, feel free to post issues in this repo.
 
 If you find our work helpful, please cite us:
 ```
-@inproceedings{zhong2024ldb,
-  title={LDB: A Large Language Model Debugger via Verifying Runtime Execution Step-by-step},
-  author={Li Zhong and Zilong Wang and Jingbo Shang},
-  booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics: Findings.},
-  year={2024}
+@misc{zhong2024ldb,
+      title={LDB: A Large Language Model Debugger via Verifying Runtime Execution Step-by-step}, 
+      author={Li Zhong and Zilong Wang and Jingbo Shang},
+      year={2024},
+      eprint={2402.16906},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE}
 }
-
 ```
 ## 🙌 Acknowledgement
 Our implementation adapts code from [Reflexion](https://github.com/noahshinn/reflexion) and [staticfg](https://github.com/coetaur0/staticfg). We thank authors of these projects for providing high quality open source code!
