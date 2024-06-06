@@ -7,23 +7,27 @@ Part of the analysis for this blog post builds on the following five publication
 #### HumanEval
 
 **Reflexion ---**
-[Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366) ([GitHub](https://github.com/noahshinn/reflexion/blob/main/programming_runs/simple.py))
+[Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366) ([GitHub](https://github.com/noahshinn/reflexion/blob/main/programming_runs/simple.py)) (Copyright (c) 2023 Noah Shinn)
 
 **LDB ---**
-[LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step](https://arxiv.org/abs/2402.16906) ([GitHub](https://github.com/floridsleeves/llmdebugger))
+[LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step](https://arxiv.org/abs/2402.16906) ([GitHub](https://github.com/floridsleeves/llmdebugger)) ([license](https://github.com/benediktstroebl/agent-evals/blob/9ea981d6656509e3632f1203e70cfac64730e15b/ldb_license.txt))
 
 **LATS ---**
-[Language Agent Tree Search Unifies Reasoning Acting and Planing in Language Models](https://arxiv.org/abs/2310.04406) ([GitHub](https://github.com/andyz245/LanguageAgentTreeSearch))
+[Language Agent Tree Search Unifies Reasoning Acting and Planing in Language Models](https://arxiv.org/abs/2310.04406) ([GitHub](https://github.com/andyz245/LanguageAgentTreeSearch)) (Copyright (c) 2023 Andy Zhou)
 
 #### WebArena
 
 **WebArena ---**
-[WebArena: A Realistic Web Environment for Building Autonomous Agents](https://arxiv.org/pdf/2307.13854.pdf) ([GitHub](https://github.com/web-arena-x/webarena))
+[WebArena: A Realistic Web Environment for Building Autonomous Agents](https://arxiv.org/pdf/2307.13854.pdf) ([GitHub](https://github.com/web-arena-x/webarena)) ([license](https://github.com/benediktstroebl/agent-evals/blob/364c8c19c036a98d6f52203740afe9053fd88094/webarena_license.txt))
 
 **STeP ---**
 [SteP: Stacked LLM Policies for Web Actions](https://arxiv.org/abs/2310.03720) ([GitHub](https://github.com/asappresearch/webagents-step))
 
+#### NovelQA
 
+The [NovelQA website](https://github.com/NovelQA/novelqa.github.io) lists steps for downloading the data and evaluating the results.
+
+The code for the evaluations presented in NovelQA is not yet available online. Authors of NovelQA shared their evaluation code with permission to share publicly; we use this for our analysis.
 
 ### General notes
 
@@ -164,6 +168,19 @@ For each of the four specifications in our HotPotQA analysis, the `retrieval_sco
 In order to reproduce our analysis, including optimization and evaluation, you simply have to run the `.ipynb` notebooks for the respective model and agent. At the beginning of each notebook, you need to provide an API key (i.e., either OpenAI or Together.ai).
 
 ### NovelQA
+
+#### To run GPT-4 on NovelQA
+
+1. Download the NovelQA dataset from HuggingFace by following the steps outlined on the [NovelQA website](https://github.com/NovelQA/novelqa.github.io).
+2. Specify your OpenAI API key in line 149.
+3. Run the novelQA-gpt-4.py script after specifying the book data path and qa data path arguments, and leaving the rest of the arguments as the default.
+4. For evaluation, upload the results to the Codabench evaluation website following the steps outlined in the [NovelQA website](https://github.com/NovelQA/novelqa.github.io).
+
+#### To run our RAG agent on NovelQA
+1. Download the NovelQA dataset from HuggingFace by following the steps outlined on the [NovelQA website](https://github.com/NovelQA/novelqa.github.io). Store it in ./NovelQA.
+2. Specify your OpenAI API key.
+3. Run each cell of the Jupyter Notebook in succession.
+4. For evaluation, upload the results to the Codabench evaluation website following the steps outlined in the [NovelQA website](https://github.com/NovelQA/novelqa.github.io).
 
 ### WebArena
 
