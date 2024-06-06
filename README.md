@@ -10,7 +10,7 @@ Part of the analysis for this blog post builds on the following five publication
 [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366) ([GitHub](https://github.com/noahshinn/reflexion/blob/main/programming_runs/simple.py)) (Copyright (c) 2023 Noah Shinn)
 
 **LDB ---**
-[LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step](https://arxiv.org/abs/2402.16906) ([GitHub](https://github.com/floridsleeves/llmdebugger))
+[LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step](https://arxiv.org/abs/2402.16906) ([GitHub](https://github.com/floridsleeves/llmdebugger)) ([license](https://github.com/benediktstroebl/agent-evals/blob/9ea981d6656509e3632f1203e70cfac64730e15b/ldb_license.txt))
 
 **LATS ---**
 [Language Agent Tree Search Unifies Reasoning Acting and Planing in Language Models](https://arxiv.org/abs/2310.04406) ([GitHub](https://github.com/andyz245/LanguageAgentTreeSearch)) (Copyright (c) 2023 Andy Zhou)
