@@ -23,7 +23,11 @@ Part of the analysis for this blog post builds on the following five publication
 **STeP ---**
 [SteP: Stacked LLM Policies for Web Actions](https://arxiv.org/abs/2310.03720) ([GitHub](https://github.com/asappresearch/webagents-step))
 
+#### NovelQA
 
+The [NovelQA website](https://github.com/NovelQA/novelqa.github.io) lists steps for downloading the data and evaluating the results.
+
+The code for the evaluations presented in NovelQA is not yet available online. Authors of NovelQA shared their evaluation code with permission to share publicly; we use this for our analysis.
 
 ### General notes
 
@@ -164,6 +168,19 @@ For each of the four specifications in our HotPotQA analysis, the `retrieval_sco
 In order to reproduce our analysis, including optimization and evaluation, you simply have to run the `.ipynb` notebooks for the respective model and agent. At the beginning of each notebook, you need to provide an API key (i.e., either OpenAI or Together.ai).
 
 ### NovelQA
+
+#### To run GPT-4 on NovelQA
+
+1. Download the NovelQA dataset from HuggingFace by following the steps outlined on the [NovelQA website](https://github.com/NovelQA/novelqa.github.io).
+2. Specify your OpenAI API key in line 149.
+3. Run the novelQA-gpt-4.py script after specifying the book data path and qa data path arguments, and leaving the rest of the arguments as the default.
+4. For evaluation, upload the results to the Codabench evaluation website following the steps outlined in the [NovelQA website](https://github.com/NovelQA/novelqa.github.io).
+
+#### To run our RAG agent on NovelQA
+1. Download the NovelQA dataset from HuggingFace by following the steps outlined on the [NovelQA website](https://github.com/NovelQA/novelqa.github.io). Store it in ./NovelQA.
+2. Specify your OpenAI API key.
+3. Run each cell of the Jupyter Notebook in succession.
+4. For evaluation, upload the results to the Codabench evaluation website following the steps outlined in the [NovelQA website](https://github.com/NovelQA/novelqa.github.io).
 
 ### WebArena
 
