@@ -134,7 +134,6 @@ dmypy.json
 
 # Custom dirs
 local/
-data/
 outputs/
 api_key.py
 
