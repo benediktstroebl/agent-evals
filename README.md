@@ -18,7 +18,7 @@ Part of the analysis for this blog post builds on the following five publication
 #### WebArena
 
 **WebArena ---**
-[WebArena: A Realistic Web Environment for Building Autonomous Agents](https://arxiv.org/pdf/2307.13854.pdf) ([GitHub](https://github.com/web-arena-x/webarena))
+[WebArena: A Realistic Web Environment for Building Autonomous Agents](https://arxiv.org/pdf/2307.13854.pdf) ([GitHub](https://github.com/web-arena-x/webarena)) ([license](https://github.com/benediktstroebl/agent-evals/blob/364c8c19c036a98d6f52203740afe9053fd88094/webarena_license.txt))
 
 **STeP ---**
 [SteP: Stacked LLM Policies for Web Actions](https://arxiv.org/abs/2310.03720) ([GitHub](https://github.com/asappresearch/webagents-step))
