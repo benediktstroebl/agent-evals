@@ -163,7 +163,7 @@ pip install git+https://github.com/benediktstroebl/dspy.git#egg=dspy_ai
 
 #### To run baselines and agents on HotPotQA
 
-For each of the four specifications in our HotPotQA analysis, the `retrieval_score` directory contains a separate directory. These directories contain the results of our analysis as well as detailed histories of each prompt that was done during.
+For each of the four specifications in our HotPotQA analysis, the `retrieval_score` directory contains a separate directory. These directories contain the results of our analysis as well as detailed results of each inference that was done during evaluation.
 
 In order to reproduce our analysis, including optimization and evaluation, you simply have to run the `.ipynb` notebooks for the respective model and agent. At the beginning of each notebook, you need to provide an API key (i.e., either OpenAI or Together.ai).
 
