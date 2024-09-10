@@ -52,7 +52,7 @@ You can refer to the blog post and its associated appendices for more details on
 
 ## Example of Pareto frontier calculation
 
-In our analysis, Pareto frontiers are employed to evaluate agent designs. We define the Pareto frontier as the set of points (agents) that are non-dominated by any other agent in terms of mean cost and accuracy. The frontier is constrained to be convex, meaning if two agents lie next to each other on the frontier, any linear combination of these agents should also yield a point that lies on the frontier curve. We provide a simple example implementation of how we calculate Pareto frontiers on simulated agent evaluation data: [Jupyter Notebook](https://github.com/benediktstroebl/agent-evals/blob/01241aaf0ebc9b5f418769afbf0289f0df3f3241/pareto_frontier_example.ipynb) and [<img align="center" src="https://colab.research.google.com/assets/colab-badge.svg" />](https://colab.research.google.com/drive/1Yxb8pwY_QhJd50GgICOmFbe2rFWCFHC5?usp=sharing)
+In our analysis, Pareto frontiers are employed to evaluate agent designs. We define the Pareto frontier as the set of points (agents) that are non-dominated by any other agent in terms of mean cost and accuracy. The frontier is constrained to be convex, meaning if two agents lie next to each other on the frontier, any linear combination of these agents should also yield a point that lies on the frontier curve. We provide a simple example implementation of how we calculate Pareto frontiers on simulated agent evaluation data: [Jupyter Notebook](https://github.com/benediktstroebl/agent-evals/blob/01241aaf0ebc9b5f418769afbf0289f0df3f3241/pareto_frontier_example.ipynb)
 
 
 ## Running agents and models
