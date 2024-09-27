@@ -1,6 +1,6 @@
-# Repository to preprint: AI agents that matter
+# Repository to preprint: AI Agents That Matter
 
-This repository contains the accompanying code to the preprint with the title **AI agents that matter**.
+This repository contains the accompanying code to the preprint with the title **AI Agents That Matter**.
 
 Part of the analysis for this blog post builds on the following publications and their accompanying code repositories, which we used for reproducing their work.
 
