@@ -1,6 +1,6 @@
 # Repository to preprint: AI agent evaluations that matter
 
-This repository contains the accompanying code to the preprint with the title **AI agent evaluations that matter** by Sayash Kapoor, Benedikt Stroebl, Zachary S. Siegel, Nitya Nadgir, and Arvind Narayanan. 
+This repository contains the accompanying code to the preprint with the title **AI agent evaluations that matter**.
 
 Part of the analysis for this blog post builds on the following publications and their accompanying code repositories, which we used for reproducing their work.
 
