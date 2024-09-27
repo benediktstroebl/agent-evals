@@ -10,7 +10,7 @@ Part of the analysis for this blog post builds on the following publications and
 [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366) ([GitHub](https://github.com/noahshinn/reflexion/blob/main/programming_runs/simple.py)) (Copyright (c) 2023 Noah Shinn)
 
 **LDB ---**
-[LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step](https://arxiv.org/abs/2402.16906) ([GitHub](https://github.com/floridsleeves/llmdebugger)) ([license](https://github.com/benediktstroebl/agent-evals/blob/9ea981d6656509e3632f1203e70cfac64730e15b/ldb_license.txt))
+[LDB: A Large Language Model Debugger via Verifying Runtime Execution Step by Step](https://arxiv.org/abs/2402.16906) ([GitHub](https://github.com/floridsleeves/llmdebugger)) ([license](https://anonymous.4open.science/r/agent-evals-5E4E/ldb_license.txt))
 
 **LATS ---**
 [Language Agent Tree Search Unifies Reasoning Acting and Planing in Language Models](https://arxiv.org/abs/2310.04406) ([GitHub](https://github.com/andyz245/LanguageAgentTreeSearch)) (Copyright (c) 2023 Andy Zhou)
@@ -18,7 +18,7 @@ Part of the analysis for this blog post builds on the following publications and
 #### WebArena
 
 **WebArena ---**
-[WebArena: A Realistic Web Environment for Building Autonomous Agents](https://arxiv.org/pdf/2307.13854.pdf) ([GitHub](https://github.com/web-arena-x/webarena)) ([license](https://github.com/benediktstroebl/agent-evals/blob/364c8c19c036a98d6f52203740afe9053fd88094/webarena_license.txt))
+[WebArena: A Realistic Web Environment for Building Autonomous Agents](https://arxiv.org/pdf/2307.13854.pdf) ([GitHub](https://github.com/web-arena-x/webarena)) ([license](https://anonymous.4open.science/r/agent-evals-5E4E/webarena_license.txt))
 
 **STeP ---**
 [SteP: Stacked LLM Policies for Web Actions](https://arxiv.org/abs/2310.03720) ([GitHub](https://github.com/asappresearch/webagents-step))
@@ -40,7 +40,7 @@ The code for the evaluations presented in NovelQA is not yet available online. A
 #### Logging on HumanEval 
 
 - To track inference times and costs associated with the agents, we added code at relevant points within the source code. The resulting log files are stored alongside the results from solving the HumanEval tasks in the `output_data/` subdirectories located within each agent directory.
-- **Note on interrupted runs:** Some experimental runs were interrupted mid way through the HumanEval problems (e.g., due to budget limits or network errors). We restarted these runs from the point of interruption (i.e., starting at the earliest unsolved HumanEval problem) to conserve costs. This means that the accuracy reflected in the LATS `.jsonl` files is not accurate in these instances ([example](https://github.com/benediktstroebl/agent-eval/blob/2a5afc1a29e539b28a870b7431d9b9a3bc4f21ef/LanguageAgentTreeSearch/output_data/lats/humaneval/gpt-4-turbo-2024-04-09/run1/humaneval-py._mcts_8_gpt-4-turbo-2024-04-09_pass_at_k_1_py.jsonl)). You can refer to the respective `.log` files stored in the same folder for the correct accuracy numbers. (To be clear, this only affects the log files stored by LATS. It does not affect the actual accuracy of the agent, nor the results reported in the blog post.)
+- **Note on interrupted runs:** Some experimental runs were interrupted mid way through the HumanEval problems (e.g., due to budget limits or network errors). We restarted these runs from the point of interruption (i.e., starting at the earliest unsolved HumanEval problem) to conserve costs. This means that the accuracy reflected in the LATS `.jsonl` files is not accurate in these instances ([example](https://anonymous.4open.science/r/agent-evals-5E4E/LanguageAgentTreeSearch/output_data/lats/humaneval/gpt-4-turbo-2024-04-09/run1/humaneval-py._mcts_8_gpt-4-turbo-2024-04-09_pass_at_k_1_py.jsonl)). You can refer to the respective `.log` files stored in the same folder for the correct accuracy numbers. (To be clear, this only affects the log files stored by LATS. It does not affect the actual accuracy of the agent, nor the results reported in the blog post.)
 
 #### Changes made to source code of agent papers
 
@@ -52,7 +52,7 @@ You can refer to the blog post and its associated appendices for more details on
 
 ## Example of Pareto frontier calculation
 
-In our analysis, Pareto frontiers are employed to evaluate agent designs. We define the Pareto frontier as the set of points (agents) that are non-dominated by any other agent in terms of mean cost and accuracy. The frontier is constrained to be convex, meaning if two agents lie next to each other on the frontier, any linear combination of these agents should also yield a point that lies on the frontier curve. We provide a simple example implementation of how we calculate Pareto frontiers on simulated agent evaluation data: [Jupyter Notebook](https://github.com/benediktstroebl/agent-evals/blob/01241aaf0ebc9b5f418769afbf0289f0df3f3241/pareto_frontier_example.ipynb)
+In our analysis, Pareto frontiers are employed to evaluate agent designs. We define the Pareto frontier as the set of points (agents) that are non-dominated by any other agent in terms of mean cost and accuracy. The frontier is constrained to be convex, meaning if two agents lie next to each other on the frontier, any linear combination of these agents should also yield a point that lies on the frontier curve. We provide a simple example implementation of how we calculate Pareto frontiers on simulated agent evaluation data: [Jupyter Notebook](https://anonymous.4open.science/r/agent-evals-5E4E/pareto_frontier_example.ipynb)
 
 
 ## Running agents and models
@@ -63,7 +63,7 @@ To set up the environments to run each agent, follow these steps:
 
 1. Clone this repo and move to the respective agent directory:
 ```bash
-git clone https://github.com/benediktstroebl/agent-eval.git
+git clone https://anonymous.4open.science/r/agent-evals-5E4E (for anonymous review, you need to download the repository manually using this link)
 ```
 
 2. For each agent repository, create an environment with the provided module dependencies contained in the respective folder:
@@ -154,7 +154,7 @@ To set up the environments to run our analysis, follow these steps:
 
 1. Clone this repo and move to the `HotPotQA` directory:
 ```bash
-git clone https://github.com/benediktstroebl/agent-eval.git
+git clone https://anonymous.4open.science/r/agent-evals-5E4E (for anonymous review, you need to download the repository manually using this link)
 ```
 
 2. In the repository, create an environment with the provided module dependencies contained in the folder:
@@ -163,7 +163,7 @@ pip install -r requirements.txt
 ```
 **Note:** This install a custom version of the `dspy` library that contains our joint optimizer for accuracy and cost. You can alternatively achieve the same thing by running the following command:
 ```bash
-pip install git+https://github.com/benediktstroebl/dspy.git#egg=dspy_ai
+pip install git+https://anonymous.4open.science/r/dspy-EC0C (for anonymous review, you need to download and install the repository manually using this link)
 ```
 
 #### To run baselines and agents on HotPotQA
@@ -193,7 +193,7 @@ To set up the environments to run each agent, follow these steps:
 
 1. Clone this repo and move to the respective agent directory:
 ```bash
-git clone https://github.com/benediktstroebl/agent-eval.git
+git clone https://anonymous.4open.science/r/agent-evals-5E4E (for anonymous review, you need to download the repository manually using this link)
 ```
 
 2. In the repository, create an environment with the provided module dependencies contained in the folder:
