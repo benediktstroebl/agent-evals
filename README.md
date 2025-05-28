@@ -1,6 +1,6 @@
 # [TMLR 2025] AI Agents That Matter
 
-This repository contains the accompanying code to the paper **AI Agents That Matter (Kapoor et al., 2025)** published in TMLR. 
+This repository contains the accompanying code to the paper **[AI Agents That Matter (Kapoor et al., 2025)](https://arxiv.org/abs/2407.01502)** published in TMLR. 
 
 Part of the analysis for this builds on the following publications and their accompanying code repositories, which we used for reproducing their work.
 
