@@ -1,8 +1,8 @@
-# Repository to preprint: AI Agents That Matter
+# [TMLR 2025] AI Agents That Matter
 
-This repository contains the accompanying code to the preprint with the title **AI Agents That Matter**.
+This repository contains the accompanying code to the paper **AI Agents That Matter (Kapoor et al., 2025)** published in TMLR. 
 
-Part of the analysis for this blog post builds on the following publications and their accompanying code repositories, which we used for reproducing their work.
+Part of the analysis for this builds on the following publications and their accompanying code repositories, which we used for reproducing their work.
 
 #### HumanEval
 
